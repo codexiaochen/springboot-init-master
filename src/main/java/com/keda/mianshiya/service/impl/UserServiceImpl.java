@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.keda.mianshiya.common.ErrorCode;
 import com.keda.mianshiya.constant.CommonConstant;
 import com.keda.mianshiya.exception.BusinessException;
+import com.keda.mianshiya.mapper.UserMapper;
 import com.keda.mianshiya.model.dto.user.UserQueryRequest;
 import com.keda.mianshiya.model.entity.User;
 import com.keda.mianshiya.model.enums.UserRoleEnum;
