@@ -1,5 +1,7 @@
 package com.keda.mianshiya.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.keda.mianshiya.annotation.AuthCheck;
 import com.keda.mianshiya.common.BaseResponse;
@@ -11,6 +13,7 @@ import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.exception.ThrowUtils;
 import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
 import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionQueryRequest;
+import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionRemoveRequest;
 import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionUpdateRequest;
 import com.keda.mianshiya.model.entity.QuestionBankQuestion;
 import com.keda.mianshiya.model.entity.User;
@@ -203,4 +206,24 @@ public class QuestionBankQuestionController {
     }
 
     // endregion
+
+    /**
+     * 删除题库题目关联
+     *
+     * @param questionBankQuestionRemoveRequest
+     * @return
+     */
+    @PostMapping("/remove")
+    public BaseResponse<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionRemoveRequest questionBankQuestionRemoveRequest) {
+
+        ThrowUtils.throwIf(questionBankQuestionRemoveRequest == null, ErrorCode.PARAMS_ERROR);
+        Long questionBankId = questionBankQuestionRemoveRequest.getQuestionBankId();
+        Long questionId = questionBankQuestionRemoveRequest.getQuestionId();
+        LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                .eq(QuestionBankQuestion::getQuestionId, questionId)
+                .eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
+        boolean result = questionBankQuestionService.remove(lambdaQueryWrapper);
+
+        return ResultUtils.success(result);
+    }
 }
