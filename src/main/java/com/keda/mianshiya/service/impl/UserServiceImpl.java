@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.keda.mianshiya.common.ErrorCode;
 import com.keda.mianshiya.constant.CommonConstant;
+import com.keda.mianshiya.constant.RedisConstant;
 import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.mapper.UserMapper;
 import com.keda.mianshiya.model.dto.user.UserQueryRequest;
@@ -16,13 +17,18 @@ import com.keda.mianshiya.model.vo.LoginUserVO;
 import com.keda.mianshiya.model.vo.UserVO;
 import com.keda.mianshiya.service.UserService;
 import com.keda.mianshiya.utils.SqlUtils;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RBitSet;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -41,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "yupi";
+
+    @Resource
+    private Redisson redisson;
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -268,5 +277,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public boolean addUserSignIn(long userId) {
+        //获取key
+        LocalDate date = LocalDate.now();
+        String key = RedisConstant.getUserSignInRedisKey(date.getYear(), userId);
+        //获取BitMap
+        RBitSet bitSet = redisson.getBitSet(key);
+        //获取今天是这一年的第几天
+        int offset = date.getDayOfYear();
+        //查询今天是否签到
+        if(!bitSet.get(offset)){
+            bitSet.set(offset,true);
+        }
+        return true;
     }
 }

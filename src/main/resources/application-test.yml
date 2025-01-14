@@ -15,7 +15,7 @@ spring:
   # todo 需替换配置
   redis:
     database: 1
-    host: localhost
+    host: 192.168.2.200
     port: 6379
     timeout: 5000
     password: 123456
