@@ -19,8 +19,8 @@ import com.keda.mianshiya.service.UserService;
 import com.keda.mianshiya.utils.SqlUtils;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Year;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -279,6 +279,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return queryWrapper;
     }
 
+    /**
+     * 签到功能
+     *
+     * @param userId 用户id
+     * @return  是否签到成功
+     */
     @Override
     public boolean addUserSignIn(long userId) {
         //获取key
@@ -293,5 +299,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             bitSet.set(offset,true);
         }
         return true;
+    }
+
+    /**
+     * 签到功能
+     *
+     * @param userId 用户id
+     * @return  是否签到成功
+     */
+    @Override
+    public List<Integer> getUserSignInRecord(long userId, Integer year) {
+        if(year == null){
+            LocalDate date = LocalDate.now();
+            year = date.getYear();
+        }
+        String key = RedisConstant.getUserSignInRedisKey(year, userId);
+        RBitSet bitSetRecord = redisson.getBitSet(key);
+        BitSet bitSet = bitSetRecord.asBitSet();
+        List<Integer> result = new ArrayList<>();
+        int index = bitSet.nextSetBit(0);
+        while(index >= 0){
+            result.add(index);
+            index = bitSet.nextSetBit(index + 1);
+        }
+        return result;
     }
 }
