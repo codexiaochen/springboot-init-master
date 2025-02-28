@@ -7,6 +7,12 @@ public interface RedisConstant {
      */
     String USER_SIGN_IN_REDIS_KEY_PREFIX = "user:signins";
 
+    /**
+     *
+     * @param year
+     * @param userId
+     * @return
+     */
     static String getUserSignInRedisKey(int year, long userId) {
         return String.format("%s:%s:%s", USER_SIGN_IN_REDIS_KEY_PREFIX, year, userId);
     }

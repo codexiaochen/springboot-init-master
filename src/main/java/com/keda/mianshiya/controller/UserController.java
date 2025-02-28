@@ -321,13 +321,12 @@ public class UserController {
     }
 
     /**
-     * 创建用户
+     * 添加用户签到记录
      *
      * @param request
      * @return
      */
     @PostMapping("/add/sign_in")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> updateMyUser(HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         boolean result = userService.addUserSignIn(loginUser.getId());
