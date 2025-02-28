@@ -14,10 +14,7 @@ import com.keda.mianshiya.common.ResultUtils;
 import com.keda.mianshiya.constant.UserConstant;
 import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.exception.ThrowUtils;
-import com.keda.mianshiya.model.dto.question.QuestionAddRequest;
-import com.keda.mianshiya.model.dto.question.QuestionEditRequest;
-import com.keda.mianshiya.model.dto.question.QuestionQueryRequest;
-import com.keda.mianshiya.model.dto.question.QuestionUpdateRequest;
+import com.keda.mianshiya.model.dto.question.*;
 import com.keda.mianshiya.model.entity.Question;
 import com.keda.mianshiya.model.entity.QuestionBankQuestion;
 import com.keda.mianshiya.model.entity.User;
@@ -265,4 +262,12 @@ public class QuestionController {
 
 
     // endregion
+
+    @PostMapping("delete/batch")
+    public BaseResponse<Boolean> batchDeteleQuestion(@RequestBody QuestionRemoveRequest questionRemoveRequest) {
+        ThrowUtils.throwIf(questionRemoveRequest == null,ErrorCode.PARAMS_ERROR,"删除的id不能为空");
+        List<Long> questionId = questionRemoveRequest.getQuestionId();
+        questionService.batchDeleteQuestion(questionId);
+        return ResultUtils.success(true);
+    }
 }

@@ -11,10 +11,7 @@ import com.keda.mianshiya.common.ResultUtils;
 import com.keda.mianshiya.constant.UserConstant;
 import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.exception.ThrowUtils;
-import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionAddRequest;
-import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionQueryRequest;
-import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionRemoveRequest;
-import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionUpdateRequest;
+import com.keda.mianshiya.model.dto.questionBankQuestion.*;
 import com.keda.mianshiya.model.entity.QuestionBankQuestion;
 import com.keda.mianshiya.model.entity.User;
 import com.keda.mianshiya.model.vo.QuestionBankQuestionVO;
@@ -26,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 题库题目关联接口
@@ -43,6 +41,7 @@ public class QuestionBankQuestionController {
 
     @Resource
     private UserService userService;
+
 
     // region 增删改查
 
@@ -225,5 +224,33 @@ public class QuestionBankQuestionController {
         boolean result = questionBankQuestionService.remove(lambdaQueryWrapper);
 
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 批量向题库插入题目（仅管理员可用）
+     *
+     * @param questionBankQuestionBatchAddRequest
+     * @return
+     */
+    @PostMapping("/add/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> addQuestionBankQuestion(@RequestBody QuestionBankQuestionBatchAddRequest questionBankQuestionBatchAddRequest,
+                                                            HttpServletRequest request) {
+        ThrowUtils.throwIf(questionBankQuestionBatchAddRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
+        Long questionBankId = questionBankQuestionBatchAddRequest.getQuestionBankId();
+        List<Long> questionId = questionBankQuestionBatchAddRequest.getQuestionId();
+        questionBankQuestionService.batchAddQuestionsToBank(questionId,questionBankId,loginUser);
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("/remove/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionBatchRemoveRequest questionBankQuestionBatchRemoveRequest) {
+        ThrowUtils.throwIf(questionBankQuestionBatchRemoveRequest == null, ErrorCode.PARAMS_ERROR);
+        Long questionBankId = questionBankQuestionBatchRemoveRequest.getQuestionBankId();
+        List<Long> questionId = questionBankQuestionBatchRemoveRequest.getQuestionId();
+        questionBankQuestionService.batchRemoveQuestionsToBank(questionId,questionBankId);
+        return ResultUtils.success(true);
     }
 }
