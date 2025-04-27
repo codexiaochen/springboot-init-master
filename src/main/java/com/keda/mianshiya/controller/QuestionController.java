@@ -347,12 +347,4 @@ public class QuestionController {
         return ResultUtils.success(true);
     }
 
-    @PostMapping("delete/batch")
-    public BaseResponse<Boolean> batchDeteleQuestion(@RequestBody QuestionRemoveRequest questionRemoveRequest) {
-        ThrowUtils.throwIf(questionRemoveRequest == null, ErrorCode.PARAMS_ERROR, "删除的id不能为空");
-        List<Long> questionId = questionRemoveRequest.getQuestionId();
-        questionService.batchDeleteQuestion(questionId);
-        return ResultUtils.success(true);
-    }
-
 }

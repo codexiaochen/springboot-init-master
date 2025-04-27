@@ -211,26 +211,6 @@ public class QuestionBankQuestionController {
     // endregion
 
     /**
-     * 删除题库题目关联
-     *
-     * @param questionBankQuestionRemoveRequest
-     * @return
-     */
-    @PostMapping("/remove")
-    public BaseResponse<Boolean> removeQuestionBankQuestion(@RequestBody QuestionBankQuestionRemoveRequest questionBankQuestionRemoveRequest) {
-
-        ThrowUtils.throwIf(questionBankQuestionRemoveRequest == null, ErrorCode.PARAMS_ERROR);
-        Long questionBankId = questionBankQuestionRemoveRequest.getQuestionBankId();
-        Long questionId = questionBankQuestionRemoveRequest.getQuestionId();
-        LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
-                .eq(QuestionBankQuestion::getQuestionId, questionId)
-                .eq(QuestionBankQuestion::getQuestionBankId, questionBankId);
-        boolean result = questionBankQuestionService.remove(lambdaQueryWrapper);
-
-        return ResultUtils.success(result);
-    }
-
-    /**
      * 批量向题库插入题目（仅管理员可用）
      *
      * @param questionBankQuestionBatchAddRequest
