@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 /**
  * 增量同步帖子到 es
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * @author <a href="https://github.com/litest">chenqi</a>
+ * @from <a href="https://test.icu">test</a>
  */
 // todo 取消注释开启任务
 // todo 取消注释开启任务

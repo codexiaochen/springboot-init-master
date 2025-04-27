@@ -1,6 +1,6 @@
 # 数据库初始化
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
+# @author <a href="https://github.com/litest">chenqi</a>
+# @from <a href="https://test.icu">test</a>
 
 # -- 创建库
 # create database if not exists mianshiya;
@@ -78,7 +78,7 @@ VALUES (1, 'user1', 'b0dd3697a192885d7c055db46155b26a', 'unionId1', 'mpOpenId1',
         'https://www.code-nav.cn/logo.png', '前端爱好者', 'user'),
        (4, 'user4', 'b0dd3697a192885d7c055db46155b26a', 'unionId4', 'mpOpenId4', 'user4',
         'https://www.code-nav.cn/logo.png', '后端开发工程师', 'user'),
-       (5, 'yupi', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, '程序员鱼皮', 'https://www.code-nav.cn/logo.png',
+       (5, 'test', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, 'chenqi', 'https://www.code-nav.cn/logo.png',
         '系统管理员', 'admin');
 
 -- 题库表初始数据

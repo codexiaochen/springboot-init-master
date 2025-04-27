@@ -1,6 +1,10 @@
 package com.keda.mianshiya.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.degrade.DegradeException;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.keda.mianshiya.annotation.AuthCheck;
 import com.keda.mianshiya.common.BaseResponse;
 import com.keda.mianshiya.common.DeleteRequest;
@@ -31,8 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 题库接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ * @author <a href="https://github.com/litest">chenqi</a>
+ * @from <a href="https://www.code-nav.cn">test</a>
  */
 @RestController
 @RequestMapping("/questionBank")
@@ -140,9 +144,23 @@ public class QuestionBankController {
      */
     @GetMapping("/get/vo")
     public BaseResponse<QuestionBankVO> getQuestionBankVOById(QuestionBankQueryRequest questionBankQueryRequest, HttpServletRequest request) {
-        ThrowUtils.throwIf(questionBankQueryRequest == null,ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
         Long id = questionBankQueryRequest.getId();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+
+        // 生成 key
+        String key = "bank_detail_" + id;
+        // 如果是热 key
+        if (JdHotKeyStore.isHotKey(key)) {
+            // 从本地缓存中获取缓存值
+            Object cachedQuestionBankVO = JdHotKeyStore.get(key);
+            if (cachedQuestionBankVO != null) {
+                // 如果缓存中有值，直接返回缓存的值
+                return ResultUtils.success((QuestionBankVO) cachedQuestionBankVO);
+            }
+        }
+
+        // 原本查询数据的逻辑（查数据库）
         // 查询数据库
         QuestionBank questionBank = questionBankService.getById(id);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
@@ -154,9 +172,13 @@ public class QuestionBankController {
             Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
             questionBankVO.setQuestionPage(questionPage);
         }
+        // 设置本地缓存
+        JdHotKeyStore.smartSet(key, questionBankVO);
+
         // 获取封装类
         return ResultUtils.success(questionBankVO);
     }
+
 
     /**
      * 分页获取题库列表（仅管理员可用）
@@ -183,6 +205,9 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/list/page/vo")
+    @SentinelResource(value = "listQuestionBankVOByPage",
+            blockHandler = "handleBlockException",
+            fallback = "handleFallback")
     public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
                                                                HttpServletRequest request) {
         long current = questionBankQueryRequest.getCurrent();
@@ -195,6 +220,32 @@ public class QuestionBankController {
         // 获取封装类
         return ResultUtils.success(questionBankService.getQuestionBankVOPage(questionBankPage, request));
     }
+
+    /**
+     * listQuestionBankVOByPage 降级操作：直接返回本地数据
+     */
+    public BaseResponse<Page<QuestionBankVO>> handleFallback(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
+                                                             HttpServletRequest request, Throwable ex) {
+        // 可以返回本地数据或空数据
+        return ResultUtils.success(null);
+    }
+
+    /**
+     * listQuestionBankVOByPage 流控操作
+     * 限流：提示“系统压力过大，请耐心等待”
+     * 熔断：执行降级操作
+     */
+    public BaseResponse<Page<QuestionBankVO>> handleBlockException(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
+                                                                   HttpServletRequest request, BlockException ex) {
+        // 降级操作
+        if (ex instanceof DegradeException) {
+            return handleFallback(questionBankQueryRequest, request, ex);
+        }
+        // 限流操作
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统压力过大，请耐心等待");
+    }
+
+
 
     /**
      * 分页获取当前登录用户创建的题库列表

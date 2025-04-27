@@ -8,7 +8,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.keda.mianshiya.common.ErrorCode;
 import com.keda.mianshiya.constant.CommonConstant;
+import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.exception.ThrowUtils;
+import com.keda.mianshiya.manager.CounterManager;
 import com.keda.mianshiya.mapper.QuestionMapper;
 import com.keda.mianshiya.model.dto.question.QuestionEsDTO;
 import com.keda.mianshiya.model.dto.question.QuestionQueryRequest;
@@ -47,13 +49,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
  * 题目服务实现
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ * @author <a href="https://github.com/litest">chenqi</a>
+ * @from <a href="https://www.code-nav.cn">test</a>
  */
 @Service
 @Slf4j
@@ -68,6 +71,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
     @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
+
+    @Resource
+    private CounterManager counterManager;
 
     /**
      * 校验数据
@@ -339,6 +345,60 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     .eq(QuestionBankQuestion::getQuestionId, questionId);
             result = questionBankQuestionService.remove(lambdaQueryWrapper);
             ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR,"删除题目题库关联失败");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDeleteQuestions(List<Long> questionIdList) {
+        if (CollUtil.isEmpty(questionIdList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "要删除的题目列表为空");
+        }
+        for (Long questionId : questionIdList) {
+            boolean result = this.removeById(questionId);
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "删除题目失败");
+            }
+            // 移除题目题库关系
+            LambdaQueryWrapper<QuestionBankQuestion> lambdaQueryWrapper = Wrappers.lambdaQuery(QuestionBankQuestion.class)
+                    .eq(QuestionBankQuestion::getQuestionId, questionId);
+            result = questionBankQuestionService.remove(lambdaQueryWrapper);
+            if (!result) {
+                throw new BusinessException(ErrorCode.OPERATION_ERROR, "删除题目题库关联失败");
+            }
+        }
+    }
+
+
+    /**
+     * 检测爬虫
+     *
+     * @param loginUserId
+     */
+    public void crawlerDetect(long loginUserId) {
+        // 调用多少次时告警
+        final int WARN_COUNT = 10;
+        // 超过多少次封号
+        final int BAN_COUNT = 20;
+        // 拼接访问 key
+        String key = String.format("user:access:%s", loginUserId);
+        // 一分钟内访问次数，180 秒过期
+        long count = counterManager.incrAndGetCounter(key, 1, TimeUnit.MINUTES, 180);
+        // 是否封号
+        if (count > BAN_COUNT) {
+            // 踢下线
+//            StpUtil.kickout(loginUserId);
+            // 封号
+            User updateUser = new User();
+            updateUser.setId(loginUserId);
+            updateUser.setUserRole("ban");
+            userService.updateById(updateUser);
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "访问太频繁，已被封号");
+        }
+        // 是否告警
+        if (count == WARN_COUNT) {
+            // 可以改为向管理员发送邮件通知
+            throw new BusinessException(110, "警告访问太频繁");
         }
     }
 

@@ -14,8 +14,8 @@ import java.util.List;
 /**
  * 题目服务
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ * @author <a href="https://github.com/litest">chenqi</a>
+ * @from <a href="https://www.code-nav.cn">test</a>
  */
 public interface QuestionService extends IService<Question> {
 
@@ -76,5 +76,20 @@ public interface QuestionService extends IService<Question> {
      * @return
      */
     void batchDeleteQuestion(List<Long> questionIdList);
+
+    /**
+     * 批量删除题目
+     *
+     * @param questionIdList
+     * @return
+     */
+    void batchDeleteQuestions(List<Long> questionIdList);
+
+    /**
+     * 检测爬虫
+     *
+     * @param loginUserId
+     */
+    void crawlerDetect(long loginUserId);
 
 }
