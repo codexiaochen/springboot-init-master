@@ -22,6 +22,7 @@ import com.keda.mianshiya.exception.BusinessException;
 import com.keda.mianshiya.exception.ThrowUtils;
 import com.keda.mianshiya.model.dto.question.*;
 import com.keda.mianshiya.model.dto.questionBank.QuestionBankQueryRequest;
+import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionBatchAddRequest;
 import com.keda.mianshiya.model.entity.Question;
 import com.keda.mianshiya.model.entity.QuestionBankQuestion;
 import com.keda.mianshiya.model.entity.User;
@@ -56,6 +57,8 @@ public class QuestionController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private QuestionBankQuestionService questionBankQuestionService;
     // region 增删改查
 
     /**
@@ -329,20 +332,26 @@ public class QuestionController {
 
     // endregion
 
-    @PostMapping("delete/batch")
-    public BaseResponse<Boolean> batchDeteleQuestion(@RequestBody QuestionRemoveRequest questionRemoveRequest) {
-        ThrowUtils.throwIf(questionRemoveRequest == null, ErrorCode.PARAMS_ERROR, "删除的id不能为空");
-        List<Long> questionId = questionRemoveRequest.getQuestionId();
-        questionService.batchDeleteQuestion(questionId);
-        return ResultUtils.success(true);
-    }
-
+    /**
+     * 批量删除题目
+     * @param questionBatchDeleteRequest
+     * @param request
+     * @return
+     */
     @PostMapping("/delete/batch")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest,
                                                       HttpServletRequest request) {
         ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
         questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        return ResultUtils.success(true);
+    }
+
+    @PostMapping("delete/batch")
+    public BaseResponse<Boolean> batchDeteleQuestion(@RequestBody QuestionRemoveRequest questionRemoveRequest) {
+        ThrowUtils.throwIf(questionRemoveRequest == null, ErrorCode.PARAMS_ERROR, "删除的id不能为空");
+        List<Long> questionId = questionRemoveRequest.getQuestionId();
+        questionService.batchDeleteQuestion(questionId);
         return ResultUtils.success(true);
     }
 

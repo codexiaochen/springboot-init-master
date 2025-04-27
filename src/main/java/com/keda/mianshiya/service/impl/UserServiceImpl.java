@@ -302,10 +302,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 签到功能
+     * 获取用户某个年份的签到记录
      *
-     * @param userId 用户id
-     * @return  是否签到成功
+     * @param userId 用户 id
+     * @param year   年份（为空表示当前年份）
+     * @return 签到记录映射
      */
     @Override
     public List<Integer> getUserSignInRecord(long userId, Integer year) {

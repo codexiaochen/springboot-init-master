@@ -1,6 +1,5 @@
 package com.keda.mianshiya.mapper;
 
-import com.keda.mianshiya.model.entity.Post;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;

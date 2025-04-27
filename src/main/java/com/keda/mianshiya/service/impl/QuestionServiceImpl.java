@@ -348,6 +348,12 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         }
     }
 
+    /**
+     * 批量删除题目
+     *
+     * @param questionIdList
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchDeleteQuestions(List<Long> questionIdList) {

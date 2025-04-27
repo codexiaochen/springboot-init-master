@@ -1,13 +1,9 @@
 package com.keda.mianshiya.job.cycle;
 
 import cn.hutool.core.collection.CollUtil;
-import com.keda.mianshiya.esdao.PostEsDao;
 import com.keda.mianshiya.esdao.QuestionEsDao;
-import com.keda.mianshiya.mapper.PostMapper;
 import com.keda.mianshiya.mapper.QuestionMapper;
-import com.keda.mianshiya.model.dto.post.PostEsDTO;
 import com.keda.mianshiya.model.dto.question.QuestionEsDTO;
-import com.keda.mianshiya.model.entity.Post;
 import com.keda.mianshiya.model.entity.Question;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

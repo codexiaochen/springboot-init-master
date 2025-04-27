@@ -7,6 +7,7 @@ import com.keda.mianshiya.model.dto.questionBankQuestion.QuestionBankQuestionQue
 import com.keda.mianshiya.model.entity.QuestionBankQuestion;
 import com.keda.mianshiya.model.entity.User;
 import com.keda.mianshiya.model.vo.QuestionBankQuestionVO;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -61,12 +62,19 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
     void batchAddQuestionsToBank(List<Long> questionIdList, long questionBankId, User loginUser);
 
     /**
+     * 批量向题库插入题目
+     * @param questionBankQuestions
+     */
+    @Transactional(rollbackFor = Exception.class)
+    void batchAddQuestionsToBankInner(List<QuestionBankQuestion> questionBankQuestions);
+
+    /**
      * 批量从题库删除题目
      * @param questionIdList
      * @param questionBankId
      */
-    void batchRemoveQuestionsToBank(List<Long> questionIdList, long questionBankId);
 
+    void batchRemoveQuestionsFromBank(List<Long> questionIdList, Long questionBankId);
 }
 
 

@@ -324,14 +324,16 @@ public class UserController {
      * 添加用户签到记录
      *
      * @param request
-     * @return
+     * @return 当前是否已签到成功
      */
     @PostMapping("/add/sign_in")
-    public BaseResponse<Boolean> updateMyUser(HttpServletRequest request) {
+    public BaseResponse<Boolean> addUserSignIn(HttpServletRequest request) {
+        // 必须要登录才能签到
         User loginUser = userService.getLoginUser(request);
         boolean result = userService.addUserSignIn(loginUser.getId());
         return ResultUtils.success(result);
     }
+
 
     /**
      * 展示签到内容

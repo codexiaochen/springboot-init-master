@@ -2,7 +2,6 @@ package com.keda.mianshiya.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.keda.mianshiya.model.entity.Post;
 import com.keda.mianshiya.model.entity.User;
 import javax.annotation.Resource;
 import org.junit.jupiter.api.Assertions;

@@ -20,9 +20,9 @@ public class QuestionBankQuestionBatchRemoveRequest implements Serializable {
     private Long questionBankId;
 
     /**
-     * 题目 id
+     * 题目 id 列表
      */
-    private List<Long> questionId;
+    private List<Long> questionIdList;
 
     private static final long serialVersionUID = 1L;
 }
